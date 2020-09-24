@@ -326,6 +326,8 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
             self._people.update(p)
             self._families.update(f)
+            ### estimate dates
+            self.estimate_person_times()
             return
 
         ## no list of interesting edge people provided by the user
@@ -344,8 +346,130 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         # once we get here we have a full list of people
         # and families that we need to generate a report
 
-        ## JMZ: some families (without parents) are still missing
-        #self._families.update([fam.handle for fam in self._db.iter_families()])
+        ### estimate dates
+        self.estimate_person_times()
+
+    def _estimate_person_times(self, estimator=None):
+        missing = 0
+        if estimator is None:
+            estimator = self.get_estimated_persontime
+        for h in self._people:
+            person = self._db.get_person_from_handle(h)
+            id = person.get_gramps_id()
+            if id in self._peopledates:
+                continue
+            date = estimator(person)
+            if date:
+                self._peopledates[id] = date
+            else:
+                missing += 1
+        return missing
+
+
+    def estimate_person_times(self):
+        self._peopledates = {}
+        # fill in known dates for a person
+        missing = self._estimate_person_times()
+        # estimate dates of a person based on their relations
+        oldmiss = missing + 1
+        print("estimating person times: missing=%s" % (missing,))
+        while missing and oldmiss > missing:
+            oldmiss = missing
+            missing = self._estimate_person_times(self.person_time_of_peers)
+            print("still missing: %s" % (missing,))
+
+    def person_time_of_peers(self, person):
+        # assume that this person doesn't have any date attached directly to them
+
+        # estimate of earliest age when one becomes a parent
+        birther_age = 20
+
+        def handlefun2age(handlefun):
+            id = self.as_gramps_id(handlefun)
+            if not id:
+                return None
+            return self._peopledates.get(id)
+
+        def families2ages(family_handles, parent_births, children_births):
+            for family_handle in family_handles:
+                family = self._db.get_family_from_handle(family_handle)
+                # to get the birth-date of the youngest parent (if any)
+                parent_births.append(handlefun2age(family.get_father_handle))
+                parent_births.append(handlefun2age(family.get_mother_handle))
+                # and the birth-dates of all the siblings
+                for sib in family.get_child_ref_list():
+                    sibling = self._db.get_person_from_handle(sib.ref)
+                    if sibling:
+                        children_births.append(self._peopledates.get(sibling.get_gramps_id()))
+
+        def mean(data):
+            data = list(filter(None, data))
+            if data:
+                return sum(data) / len(data)
+
+        def mapNotNone(fun, data):
+            try:
+                return fun(filter(None, data))
+            except:
+                pass
+
+        parent_births = []
+        child_births = []
+        sibling_births = []
+        spouse_births = []
+
+        # iterate over all families, where 'person' is a child
+        # to get the birth-date of the youngest parent (if any)
+        # and the birth-dates of all the siblings
+        families2ages(person.get_parent_family_handle_list(), parent_births, sibling_births)
+
+        # iterate over all families, where 'person' is a spouse/parent
+        # to get the birth-date of the oldest child (if any)
+        # and the birth-dates of all the spouses
+        families2ages(person.get_family_handle_list(), spouse_births, child_births)
+
+        ## get the youngest parent
+        parent_birth=mapNotNone(max, parent_births)
+        ## get the oldest child
+        child_birth=mapNotNone(min, child_births)
+        ## get the mean age of spouses
+        spouse_birth = mean(spouse_births)
+        ## get the mean age of siblings
+        sibling_birth = mean(sibling_births)
+
+        ## if both parent and child have a date, our person must be born somewhen inbetween
+        if child_birth and parent_birth:
+            return int((child_birth + parent_birth)/2)
+        ## otherwise, the person must be older than the child
+        if child_birth:
+            return child_birth - birther_age
+        ## and of course younger than their parents
+        if parent_birth:
+            return parent_birth + birther_age
+
+        ## if none of this worked, check if we have siblings
+        ## and assume that we are "about the same age" (mean of all siblings with dates)
+        if sibling_birth:
+            return int(sibling_birth)
+
+        ## if we still don't know anything, check if we have a spouse, and assume the same age
+        if spouse_birth:
+            return int(spouse_birth)
+
+        return None
+
+    def get_estimated_persontime(self, person):
+        date = self._peopledates.get(person.get_gramps_id(), None)
+        print("%s born in %s" % (person, date))
+        if date is not None:
+            return date
+        date = get_timeperiod(self._db, person)
+        if date is not None:
+            try:
+                return date.get_date_object().get_year()
+            except:
+                return date
+        return  None
 
 
     def write_report(self):
@@ -662,21 +786,15 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         # we now merge our temp set "childrenToInclude" into our master set
         self._people.update(childrenToInclude)
 
-
     def getPeople(self):
         # loop through all the people we need to output
         def handle2json(handle):
             person = self._db.get_person_from_handle(handle)
             name = self.format_name(person)
-            date = get_timeperiod(self._db, person)
-            if date is not None:
-                try:
-                    date = date.get_date_object().get_year()
-                except: pass
             return  {
                 "id": person.get_gramps_id(),
                 "name": name,
-                "value": date or 0,
+                "value": self.get_estimated_persontime(person) or 0,
             }
         return [handle2json(_) for _ in self._people ]
 

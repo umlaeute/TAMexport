@@ -379,6 +379,11 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             print("still missing: %s" % (missing,))
 
     def person_time_of_peers(self, person):
+        x = self._person_time_of_peers(person)
+        if x:
+            print("estimated '%s' at %s" % (person.get_gramps_id(), x))
+        return x
+    def _person_time_of_peers(self, person):
         # assume that this person doesn't have any date attached directly to them
 
         # estimate of earliest age when one becomes a parent

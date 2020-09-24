@@ -694,7 +694,9 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             name = self.format_name(person)
             date = get_timeperiod(self._db, person)
             if date is not None:
-                date = date.get_date_object().get_year()
+                try:
+                    date = date.get_date_object().get_year()
+                except: pass
             return  {
                 "id": person.get_gramps_id(),
                 "name": name,

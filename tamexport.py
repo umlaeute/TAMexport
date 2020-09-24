@@ -255,22 +255,13 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._removeextra = get_value('removeextra')
         interestlist = get_value('interestlist')
         edgelist = get_value('edgelist')
-        self._colormales = get_value('colormales')
-        self._colorfemales = get_value('colorfemales')
-        self._colorunknown = get_value('colorunknown')
-        self._colorfamilies = get_value('colorfamilies')
         self._limitparents = get_value('limitparents')
         self._maxparents = get_value('maxparents')
         self._limitchildren = get_value('limitchildren')
         self._maxchildren = get_value('maxchildren')
-        self._incimages = get_value('incimages')
-        self._imageonside = get_value('imageonside')
-        self._useroundedcorners = get_value('useroundedcorners')
-        self._usesubgraphs = get_value('usesubgraphs')
         self._incdates = get_value('incdates')
         self._just_years = get_value('justyears')
         self._incplaces = get_value('incplaces')
-        self._incchildcount = get_value('incchildcnt')
         self._livinganonymous = get_value('livinganonymous')
         self._incprivate = get_value('incl_private')
         include_all = get_value('allpeople')
@@ -307,30 +298,12 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         else:
             print("empty edgelist")
 
-        lang = menu.get_option_by_name('trans').get_value()
-        self._locale = self.set_locale(lang)
-
         name_format = menu.get_option_by_name("name_format").get_value()
         if name_format != 0:
             self._name_display.set_default_format(name_format)
             self.format_name = self._name_display.display
         else:
             self.format_name = _getDefaultName
-
-        # convert the 'surnamecolors' string to a dictionary of names and colors
-        self._surnamecolors = {}
-        tmp = get_value('surnamecolors')
-        if (tmp.find('\xb0') >= 0):
-            tmp = tmp.split('\xb0')    # new style delimiter (see bug report #2162)
-        else:
-            tmp = tmp.split(' ')        # old style delimiter
-
-        while len(tmp) > 1:
-            surname = tmp.pop(0).encode('iso-8859-1', 'xmlcharrefreplace')
-            colour = tmp.pop(0)
-            self._surnamecolors[surname] = colour
-
-        self._colorize = get_value('color')
 
     def begin_report(self):
         """

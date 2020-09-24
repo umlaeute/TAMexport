@@ -380,7 +380,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         Inherited method; called by report() in _ReportDialog.py
         """
         import json
-        import pprint
 
         # now that begin_report() has done the work, output what we've
         # obtained into whatever file or format the user expects to use
@@ -388,7 +387,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             "nodes": self.getPeople(),
             "links": self.getFamilies(),
         }
-        pprint.pprint(data)
         with open("/tmp/tam.json", "w") as f:
             json.dump(data, f)
 
@@ -456,7 +454,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                         try:
                             father = self._db.get_person_from_handle(
                                 family.get_father_handle())
-                            print(father)
                         except AttributeError: father = None
                         try:
                             mother = self._db.get_person_from_handle(
@@ -711,11 +708,9 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             x = fun()
             if not x: return
             x = self._db.get_person_from_handle(x)
-            print("got %s (%s)" % (x, type(x)))
             if x:
                 try:
                     y = x.get_gramps_id()
-                    print("\thandle: %s" % (y,))
                     return y
                 except: pass
             return None

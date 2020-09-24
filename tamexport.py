@@ -248,8 +248,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._user = user
 
         menu = options.menu
-        get_option_by_name = menu.get_option_by_name
-        get_value = lambda name: get_option_by_name(name).get_value()
+        get_value = lambda name: menu.get_option_by_name(name).get_value()
 
         self._followpar = True
         self._followchild = True

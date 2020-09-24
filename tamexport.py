@@ -354,13 +354,16 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         """
         import json
 
+        filename = "/tmp/tam.json"
+        print("***FIXME*** exporting to '%s' rather than the user-selected file" % (filename,))
+
         # now that begin_report() has done the work, output what we've
         # obtained into whatever file or format the user expects to use
         data = {
             "nodes": self.getPeople(),
             "links": self.getFamilies(),
         }
-        with open("/tmp/tam.json", "w") as f:
+        with open(filename, "w") as f:
             json.dump(data, f)
 
     def findParents(self):

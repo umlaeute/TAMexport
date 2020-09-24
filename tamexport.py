@@ -460,7 +460,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
     def get_estimated_persontime(self, person):
         date = self._peopledates.get(person.get_gramps_id(), None)
-        print("%s born in %s" % (person, date))
         if date is not None:
             return date
         date = get_timeperiod(self._db, person)

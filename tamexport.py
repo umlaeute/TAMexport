@@ -698,6 +698,8 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             mother = as_gramps_id(family.get_mother_handle)
             # link the children to the family
             result = []
+            if father and mother:
+                result.append({"source": father, "target": mother, "directed": False})
             for childRef in family.get_child_ref_list():
                 if childRef.ref in self._people:
                     child = self._db.get_person_from_handle(childRef.ref)

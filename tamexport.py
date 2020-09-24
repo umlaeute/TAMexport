@@ -679,23 +679,23 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                 "value": date or 0,
             }
         return [handle2json(_) for _ in self._people ]
-            
+
+    def as_gramps_id(self, fun):
+        x = fun()
+        if not x: return
+        x = self._db.get_person_from_handle(x)
+        if x:
+            try:
+                y = x.get_gramps_id()
+                return y
+            except: pass
+        return None
 
     def getFamilies(self):
-        def as_gramps_id(fun):
-            x = fun()
-            if not x: return
-            x = self._db.get_person_from_handle(x)
-            if x:
-                try:
-                    y = x.get_gramps_id()
-                    return y
-                except: pass
-            return None
         def family2json(family):
             #{"source": "@I0032@", "target": "@I0036@", "directed": true},
-            father = as_gramps_id(family.get_father_handle)
-            mother = as_gramps_id(family.get_mother_handle)
+            father = self.as_gramps_id(family.get_father_handle)
+            mother = self.as_gramps_id(family.get_mother_handle)
             # link the children to the family
             result = []
             if father and mother:

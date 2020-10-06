@@ -242,6 +242,8 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         # initialize several convenient variables
         self._people = set() # handle of people we need in the report
         self._families = set() # handle of families we need in the report
+        self._followparents = True
+        self._followchild = True
         self._deleted_people = 0
         self._deleted_families = 0
         self._user = user
@@ -249,8 +251,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         menu = options.menu
         get_value = lambda name: menu.get_option_by_name(name).get_value()
 
-        self._followpar = True
-        self._followchild = True
         self._removeextra = get_value('removeextra')
         interestlist = get_value('interestlist')
         edgelist = get_value('edgelist')
@@ -333,7 +333,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         ## this means that we should use ALL people
         ## we re-use the original code but have set the _interest_set to ALL people
         ## in the ctor (ugly, but works)
-        if self._followpar:
+        if self._followparents:
             self.findParents()
 
             if self._removeextra:

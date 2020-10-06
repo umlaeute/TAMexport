@@ -94,16 +94,6 @@ class TAMexportOptions(MenuReportOptions):
         add_option('followchild', Option(_('Follow children to determine '
                                     '"family lines"'), True))
 
-
-
-
-        stdoptions.add_gramps_id_option(menu, category_name, ownline=True)
-
-        # ---------------------
-        category_name = _('Report Options (2)')
-        add_option = partial(menu.add_option, category_name)
-        # ---------------------
-
         stdoptions.add_name_format_option(menu, category_name)
         stdoptions.add_private_data_option(menu, category_name, default=False)
         stdoptions.add_living_people_option(menu, category_name)
@@ -179,35 +169,12 @@ class TAMexportOptions(MenuReportOptions):
         add_option = partial(menu.add_option, _('Include'))
         # --------------------
 
-        include_id = EnumeratedListOption(_('Include Gramps ID'), 0)
-        include_id.add_item(0, _('Do not include'))
-        include_id.add_item(1, _('Share an existing line'))
-        include_id.add_item(2, _('On a line of its own'))
-        include_id.set_help(_("Whether (and where) to include Gramps IDs"))
-        add_option("incid", include_id)
-
         self.include_dates = BooleanOption(_('Include dates'), True)
         self.include_dates.set_help(_('Whether to include dates for people '
                                       'and families.'))
         add_option('incdates', self.include_dates)
         self.include_dates.connect('value-changed', self.include_dates_changed)
 
-        self.justyears = BooleanOption(_("Limit dates to years only"), False)
-        self.justyears.set_help(_("Prints just dates' year, neither "
-                                  "month or day nor date approximation "
-                                  "or interval are shown."))
-        add_option("justyears", self.justyears)
-
-        include_places = BooleanOption(_('Include places'), True)
-        include_places.set_help(_('Whether to include placenames for people '
-                                  'and families.'))
-        add_option('incplaces', include_places)
-
-        include_num_children = BooleanOption(_('Include the number of '
-                                               'children'), True)
-        include_num_children.set_help(_('Whether to always include the number of '
-                                        'children for families.'))
-        add_option('incchildcnt', include_num_children)
 
         self.limit_changed()
 

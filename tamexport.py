@@ -349,6 +349,25 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         ### estimate dates
         self.estimate_person_times()
 
+    def write_report(self):
+        """
+        Inherited method; called by report() in _ReportDialog.py
+        """
+        import json
+
+        filename = "/tmp/tam.json"
+        print("***FIXME*** exporting to '%s' rather than the user-selected file" % (filename,))
+
+        # now that begin_report() has done the work, output what we've
+        # obtained into whatever file or format the user expects to use
+        data = {
+            "nodes": self.getPeople(),
+            "links": self.getFamilies(),
+        }
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+
     def _estimate_person_times(self, estimator=None):
         missing = 0
         if estimator is None:
@@ -475,24 +494,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                 return date
         return  None
 
-
-    def write_report(self):
-        """
-        Inherited method; called by report() in _ReportDialog.py
-        """
-        import json
-
-        filename = "/tmp/tam.json"
-        print("***FIXME*** exporting to '%s' rather than the user-selected file" % (filename,))
-
-        # now that begin_report() has done the work, output what we've
-        # obtained into whatever file or format the user expects to use
-        data = {
-            "nodes": self.getPeople(),
-            "links": self.getFamilies(),
-        }
-        with open(filename, "w") as f:
-            json.dump(data, f)
 
     def findParents(self):
         # we need to start with all of our "people of interest"

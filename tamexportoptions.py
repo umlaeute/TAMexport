@@ -80,8 +80,6 @@ class TAMexportOptions(MenuReportOptions):
         self.max_parents = None
         self.limit_children = None
         self.max_children = None
-        self.include_images = None
-        self.image_location = None
         MenuReportOptions.__init__(self, name, dbase)
 
     def add_menu_options(self, menu):
@@ -108,17 +106,7 @@ class TAMexportOptions(MenuReportOptions):
                                        '"family lines".'))
         add_option('removeextra', remove_extra_people)
 
-        arrow = EnumeratedListOption(_("Arrowhead direction"), 'd')
-        for i in range( 0, len(_ARROWS) ):
-            arrow.add_item(_ARROWS[i]["value"], _ARROWS[i]["name"])
-        arrow.set_help(_("Choose the direction that the arrows point."))
-        add_option("arrow", arrow)
 
-
-        use_roundedcorners = BooleanOption(_('Use rounded corners'), False)
-        use_roundedcorners.set_help(_('Use rounded corners to differentiate '
-                                      'between women and men.'))
-        add_option("useroundedcorners", use_roundedcorners)
 
         stdoptions.add_gramps_id_option(menu, category_name, ownline=True)
 
@@ -224,30 +212,7 @@ class TAMexportOptions(MenuReportOptions):
                                         'children for families.'))
         add_option('incchildcnt', include_num_children)
 
-        self.include_images = BooleanOption(_('Include '
-                                              'thumbnail images of people'),
-                                            True)
-        self.include_images.set_help(_('Whether to '
-                                       'include thumbnail images of people.'))
-        add_option('incimages', self.include_images)
-        self.include_images.connect('value-changed', self.images_changed)
-
-        self.image_location = EnumeratedListOption(_('Thumbnail location'), 0)
-        self.image_location.add_item(0, _('Above the name'))
-        self.image_location.add_item(1, _('Beside the name'))
-        self.image_location.set_help(_('Where the thumbnail image '
-                                       'should appear relative to the name'))
-        add_option('imageonside', self.image_location)
-
-        self.image_size = EnumeratedListOption(_('Thumbnail size'), SIZE_NORMAL)
-        self.image_size.add_item(SIZE_NORMAL, _('Normal'))
-        self.image_size.add_item(SIZE_LARGE, _('Large'))
-        self.image_size.set_help(_('Size of the thumbnail image'))
-        add_option('imagesize', self.image_size)
-
-
         self.limit_changed()
-        self.images_changed()
 
     def limit_changed(self):
         """
@@ -255,13 +220,6 @@ class TAMexportOptions(MenuReportOptions):
         """
         self.max_parents.set_available(self.limit_parents.get_value())
         self.max_children.set_available(self.limit_children.get_value())
-
-    def images_changed(self):
-        """
-        Handle the change of including images.
-        """
-        self.image_location.set_available(self.include_images.get_value())
-
     def include_dates_changed(self):
         """
         Enable/disable menu items if dates are required

@@ -89,9 +89,6 @@ class TAMexportOptions(MenuReportOptions):
         add_option = partial(menu.add_option, category_name)
         # ---------------------
 
-        #stdoptions.add_name_format_option(menu, category_name)
-        #stdoptions.add_private_data_option(menu, category_name, default=False)
-
         add_option('followpar', Option(_('Follow parents to determine '
                                     '"family lines"'), True))
         add_option('followchild', Option(_('Follow children to determine '

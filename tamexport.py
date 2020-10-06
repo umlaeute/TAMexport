@@ -59,10 +59,9 @@ from gramps.gen.lib import AttributeType, EventRoleType, EventType, Person, Plac
 from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_path
 from gramps.gen.plug.report import utils as ReportUtils
+from gramps.gen.plug.report import Report
 from gramps.gen.utils.db import get_timeperiod
 from gramps.gen.utils.location import get_main_location
-
-from gramps.plugins.graph import gvfamilylines
 
 from tamexportoptions import TAMexportOptions
 
@@ -226,7 +225,7 @@ def filterEdgePeople(db, people=set(), edgepeople=set(), incprivate=False):
 # TAMexportReport -- created once the user presses 'OK'
 #
 #------------------------------------------------------------------------
-class TAMexportReport(gvfamilylines.FamilyLinesReport):
+class TAMexportReport(Report):
     def __init__(self, database, options, user):
         """
         Create TAMexportReport object that eventually produces the report.
@@ -237,7 +236,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         options     - instance of the TAMexportOptions class for this report
         user        - a gen.user.User() instance
         """
-        gvfamilylines.FamilyLinesReport.__init__(self, database, options, user)
+        Report.__init__(self, database, options, user)
 
         # initialize several convenient variables
         self._people = set() # handle of people we need in the report
@@ -261,6 +260,11 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._livinganonymous = get_value('livinganonymous')
         self._incprivate = get_value('incl_private')
         include_all = get_value('allpeople')
+
+        # this is only useful for name-formatting
+        lang = menu.get_option_by_name('trans').get_value()
+        self._locale = self.set_locale(lang)
+
 
         # the edgelist is annoying for us to use since we always have to convert
         # the GIDs to either Person or to handles, so we may as well convert the

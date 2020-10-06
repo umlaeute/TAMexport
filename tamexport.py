@@ -256,9 +256,14 @@ class TAMexportReport(Report):
         self._maxparents = get_value('maxparents')
         self._limitchildren = get_value('limitchildren')
         self._maxchildren = get_value('maxchildren')
+
+        # TODO: is there a standard-option for this?
         self._incdates = get_value('incdates')
+        # TODO: use the standard-option 'living_people' for this
         self._livinganonymous = get_value('livinganonymous')
+
         self._incprivate = get_value('incl_private')
+
         include_all = get_value('allpeople')
 
         # this is only useful for name-formatting
@@ -841,3 +846,6 @@ class TAMexportReport(Report):
             family = self.database.get_family_from_handle(family_handle)
             result += family2json(family)
         return result
+
+# FIXXME: move tamexportoptions to this file
+# FIXXME: register_date_handler() for a 'YYYY'-format

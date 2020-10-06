@@ -172,8 +172,6 @@ class TAMexportOptions(MenuReportOptions):
         self.include_dates = BooleanOption(_('Include dates'), True)
         self.include_dates.set_help(_('Whether to include dates for people.'))
         add_option('incdates', self.include_dates)
-        self.include_dates.connect('value-changed', self.include_dates_changed)
-
 
         self.limit_changed()
 
@@ -183,11 +181,3 @@ class TAMexportOptions(MenuReportOptions):
         """
         self.max_parents.set_available(self.limit_parents.get_value())
         self.max_children.set_available(self.limit_children.get_value())
-    def include_dates_changed(self):
-        """
-        Enable/disable menu items if dates are required
-        """
-        if self.include_dates.get_value():
-            self.justyears.set_available(True)
-        else:
-            self.justyears.set_available(False)

@@ -58,18 +58,6 @@ from gramps.gen.utils.thumbnails import (SIZE_NORMAL, SIZE_LARGE)
 
 #------------------------------------------------------------------------
 #
-# Constant options items
-#
-#------------------------------------------------------------------------
-_COLORS = [ { 'name' : _("B&W outline"),     'value' : "outline" },
-            { 'name' : _("Colored outline"), 'value' : "colored" },
-            { 'name' : _("Color fill"),      'value' : "filled"  }]
-_ARROWS = [ { 'name' : _("Descendants <- Ancestors"),  'value' : 'd' },
-            { 'name' : _("Descendants -> Ancestors"),  'value' : 'a' },
-            { 'name' : _("Descendants <-> Ancestors"), 'value' : 'da' },
-            { 'name' : _("Descendants - Ancestors"),   'value' : '' }]
-#------------------------------------------------------------------------
-#
 # A quick overview of the classes we'll be using:
 #
 #   class TAMexportOptions(MenuReportOptions)
@@ -126,14 +114,6 @@ class TAMexportOptions(MenuReportOptions):
         arrow.set_help(_("Choose the direction that the arrows point."))
         add_option("arrow", arrow)
 
-        color = EnumeratedListOption(_("Graph coloring"), "filled")
-        for i in range(len(_COLORS)):
-            color.add_item(_COLORS[i]["value"], _COLORS[i]["name"])
-        color.set_help(_("Males will be shown with blue, females "
-                         "with red, unless otherwise set above for filled. "
-                         "If the sex of an individual "
-                         "is unknown it will be shown with gray."))
-        add_option("color", color)
 
         use_roundedcorners = BooleanOption(_('Use rounded corners'), False)
         use_roundedcorners.set_help(_('Use rounded corners to differentiate '
@@ -265,34 +245,6 @@ class TAMexportOptions(MenuReportOptions):
         self.image_size.set_help(_('Size of the thumbnail image'))
         add_option('imagesize', self.image_size)
 
-        # ----------------------------
-        add_option = partial(menu.add_option, _('Family Colors'))
-        # ----------------------------
-
-        surname_color = SurnameColorOption(_('Family colors'))
-        surname_color.set_help(_('Colors to use for various family lines.'))
-        add_option('surnamecolors', surname_color)
-
-        # -------------------------
-        add_option = partial(menu.add_option, _('Individuals'))
-        # -------------------------
-
-        color_males = ColorOption(_('Males'), '#e0e0ff')
-        color_males.set_help(_('The color to use to display men.'))
-        add_option('colormales', color_males)
-
-        color_females = ColorOption(_('Females'), '#ffe0e0')
-        color_females.set_help(_('The color to use to display women.'))
-        add_option('colorfemales', color_females)
-
-        color_unknown = ColorOption(_('Unknown'), '#e0e0e0')
-        color_unknown.set_help(_('The color to use '
-                                 'when the gender is unknown.'))
-        add_option('colorunknown', color_unknown)
-
-        color_family = ColorOption(_('Families'), '#ffffe0')
-        color_family.set_help(_('The color to use to display families.'))
-        add_option('colorfamilies', color_family)
 
         self.limit_changed()
         self.images_changed()

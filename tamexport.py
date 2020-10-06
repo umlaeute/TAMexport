@@ -56,7 +56,7 @@ log = logging.getLogger(".TAMexport")
 # GRAMPS module
 #
 #------------------------------------------------------------------------
-from gramps.gen.errors import HandleError
+from gramps.gen.errors import (HandleError, FilterError, ReportError, DatabaseError)
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 _ = glocale.translation.gettext
 from gramps.gen.lib import AttributeType, EventRoleType, EventType, Person, PlaceType, NameType, FamilyRelType
@@ -228,7 +228,7 @@ def filterEdgePeople(db, people=set(), edgepeople=set(), incprivate=False):
 #
 #------------------------------------------------------------------------
 class TAMexportReport(Report):
-    def __init__(self, database, options, user):
+    def __init__(self, database, options, user=None):
         """
         Create TAMexportReport object that eventually produces the report.
 
@@ -238,6 +238,7 @@ class TAMexportReport(Report):
         options     - instance of the TAMexportOptions class for this report
         user        - a gen.user.User() instance
         """
+        print("TAMexport(%s,%s,%s)" % (database, options, user))
         Report.__init__(self, database, options, user)
 
         # initialize several convenient variables
@@ -247,6 +248,7 @@ class TAMexportReport(Report):
         self._followchild = True
         self._deleted_people = 0
         self._deleted_families = 0
+        self._options = options
 
         menu = options.menu
         get_value = lambda name: menu.get_option_by_name(name).get_value()
@@ -361,9 +363,7 @@ class TAMexportReport(Report):
         Inherited method; called by report() in _ReportDialog.py
         """
         import json
-
-        filename = "/tmp/tam.json"
-        print("***FIXME*** exporting to '%s' rather than the user-selected file" % (filename,))
+        doc = self._options.get_document()
 
         # now that begin_report() has done the work, output what we've
         # obtained into whatever file or format the user expects to use
@@ -371,8 +371,8 @@ class TAMexportReport(Report):
             "nodes": self.getPeople(),
             "links": self.getFamilies(),
         }
-        with open(filename, "w") as f:
-            json.dump(data, f)
+        if doc:
+            json.dump(data, doc)
 
 
     def _estimate_person_times(self, estimator=None):
@@ -871,6 +871,7 @@ from gramps.gen.plug.menu import (NumberOption, ColorOption, BooleanOption,
                                   EnumeratedListOption, PersonListOption,
                                   SurnameColorOption)
 
+# TODO: override gramps.gui.plug.report.ReportDialog() to fix the file-path
 class TAMexportOptions(MenuReportOptions):
     """
     Defines all of the controls necessary
@@ -882,8 +883,6 @@ class TAMexportOptions(MenuReportOptions):
         self.limit_children = None
         self.max_children = None
         MenuReportOptions.__init__(self, name, dbase)
-
-        from gramps.gen.const import GRAMPS_LOCALE as glocale
 
     def add_menu_options(self, menu):
 
@@ -903,7 +902,6 @@ class TAMexportOptions(MenuReportOptions):
         stdoptions.add_living_people_option(menu, category_name)
         locale_opt = stdoptions.add_localization_option(menu, category_name)
         stdoptions.add_date_format_option(menu, category_name, locale_opt)
-
 
         # --------------------------------
         add_option = partial(menu.add_option, _('Edge people'))
@@ -985,3 +983,115 @@ class TAMexportOptions(MenuReportOptions):
         """
         self.max_parents.set_available(self.limit_parents.get_value())
         self.max_children.set_available(self.limit_children.get_value())
+
+class JSONDocument:
+    def __init__(self):
+        self.file = None
+    def open(self, filename):
+        filename="/tmp/test.json"
+        log.warning("JMZ: hardcoded filename '%s'" % (filename,))
+        self.file = open(filename, "w")
+    def close(self):
+        if self.file:
+            self.file.close()
+    def write(self, data):
+        if self.file:
+            return self.file.write(data)
+    def init(self): pass
+    def set_creator(self, name): pass
+    def get_creator(self): pass
+    def set_rtl_doc(self, value): pass
+    def get_rtl_doc(self): pass
+    def get_style_sheet(self): pass
+    def set_style_sheet(self): pass
+    
+
+from gramps.gui.plug.report import TextReportDialog
+class JSONReportDialog(TextReportDialog):
+    def setup_format_frame(self):  pass
+    def setup_report_options_frame(self): pass
+    def doc_type_changed(self, obj, preserve_tab=True): pass
+    def on_ok_clicked(self, obj):
+        # Is there a filename?  This should also test file permissions, etc.
+        if not self.parse_target_frame():
+            self.window.run()
+        # Preparation
+        #self.parse_format_frame()
+        self.parse_style_frame()
+        #self.parse_html_frame()
+        self.parse_user_options()
+
+        # Create the output document.
+        #self.make_document()
+        self.options.set_document(JSONDocument())
+        
+        #self.parse_doc_options()
+
+        # Save options
+        self.options.handler.save_options()
+
+class TAMexport:
+    def __init__(self, dbstate=None, uistate=None, bla=None):
+        dialog_class=JSONReportDialog
+        options_class=TAMexportOptions
+        name="TAM Exporter"
+        trans_name="TAM Exporter Configuration"
+        dialog = dialog_class(dbstate, uistate, options_class, name, trans_name)
+        print(dialog)
+        print(dialog.window)
+        while True:
+            print("==================")
+            if self.doit(dialog, uistate):
+                break
+
+        #do needed cleanup
+        dialog.db = None
+        dialog.options = None
+        if hasattr(dialog, 'window'):
+            delattr(dialog, 'window')
+        if hasattr(dialog, 'notebook'):
+            delattr(dialog, 'notebook')
+        del dialog
+
+    def doit(self, dialog, uistate):
+        from gi.repository import Gtk
+        response = dialog.window.run()
+        if response == Gtk.ResponseType.OK:
+            dialog.close()
+            try:
+                from gramps.gui.user import User
+                user = User(uistate=uistate)
+                my_report = TAMexportReport(dialog.db, dialog.options, user)
+                my_report.doc.init()
+                my_report.begin_report()
+                my_report.write_report()
+                my_report.end_report()
+            except FilterError as msg:
+                from gramps.gui.dialog import ErrorDialog
+                (msg1, msg2) = msg.messages()
+                ErrorDialog(msg1, msg2, parent=uistate.window)
+            except IOError as msg:
+                from gramps.gui.dialog import ErrorDialog
+                ErrorDialog(_("Report could not be created"),
+                            str(msg),
+                            parent=uistate.window)
+            except ReportError as msg:
+                from gramps.gui.dialog import ErrorDialog
+                (msg1, msg2) = msg.messages()
+                ErrorDialog(msg1, msg2, parent=uistate.window)
+            except DatabaseError as msg:
+                from gramps.gui.dialog import ErrorDialog
+                ErrorDialog(_("Report could not be created"),
+                            str(msg),
+                            parent=uistate.window)
+                raise
+            except:
+                log.error("Failed to run report.", exc_info=True)
+            return True
+        elif response == Gtk.ResponseType.CANCEL:
+            dialog.close()
+            return True
+        elif response == Gtk.ResponseType.DELETE_EVENT:
+            #just stop, in ManagedWindow, delete-event is already coupled to
+            #correct action.
+            return True

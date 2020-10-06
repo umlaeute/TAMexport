@@ -246,7 +246,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._followchild = True
         self._deleted_people = 0
         self._deleted_families = 0
-        self._user = user
 
         menu = options.menu
         get_value = lambda name: menu.get_option_by_name(name).get_value()
@@ -259,8 +258,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._limitchildren = get_value('limitchildren')
         self._maxchildren = get_value('maxchildren')
         self._incdates = get_value('incdates')
-        self._just_years = get_value('justyears')
-        self._incplaces = get_value('incplaces')
         self._livinganonymous = get_value('livinganonymous')
         self._incprivate = get_value('incl_private')
         include_all = get_value('allpeople')

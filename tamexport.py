@@ -240,7 +240,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         gvfamilylines.FamilyLinesReport.__init__(self, database, options, user)
 
         # initialize several convenient variables
-        self._db = database
         self._people = set() # handle of people we need in the report
         self._families = set() # handle of families we need in the report
         self._deleted_people = 0
@@ -272,12 +271,12 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         self._edge_set = set()
         self._interest_set = set()
         # interesting people: the homeperson and the interestlist
-        homeperson = self._db.get_default_person()
+        homeperson = self.database.get_default_person()
         if homeperson:
             self._interest_set.add(homeperson.get_handle())
         if interestlist:
             for gid in interestlist.split():
-                person = self._db.get_person_from_gramps_id(gid)
+                person = self.database.get_person_from_gramps_id(gid)
                 if person:
                     #option can be from another family tree, so person can be None
                     self._interest_set.add(person.get_handle())
@@ -285,13 +284,13 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             print("empty interest set, everybody is interesting")
             include_all = True
         if include_all:
-            for cnt, prs in enumerate(self._db.iter_people()):
+            for cnt, prs in enumerate(self.database.iter_people()):
                 self._interest_set.add(prs.get_handle())
 
         # edge people: the edgelist
         if edgelist:
             for gid in edgelist.split():
-                person = self._db.get_person_from_gramps_id(gid)
+                person = self.database.get_person_from_gramps_id(gid)
                 if person:
                     #option can be from another family tree, so person can be None
                     self._edge_set.add(person.get_handle())
@@ -320,7 +319,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         if self._edge_set:
             ## user provided a list of interesting (edge) people
             (p,f) = filterEdgePeople(
-                self._db,
+                self.database,
                 self._interest_set, self._edge_set,
                 self._incprivate)
 
@@ -373,7 +372,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         if estimator is None:
             estimator = self.get_estimated_persontime
         for h in self._people:
-            person = self._db.get_person_from_handle(h)
+            person = self.database.get_person_from_handle(h)
             id = person.get_gramps_id()
             if id in self._peopledates:
                 continue
@@ -416,13 +415,13 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
         def families2ages(family_handles, parent_births, children_births):
             for family_handle in family_handles:
-                family = self._db.get_family_from_handle(family_handle)
+                family = self.database.get_family_from_handle(family_handle)
                 # to get the birth-date of the youngest parent (if any)
                 parent_births.append(handlefun2age(family.get_father_handle))
                 parent_births.append(handlefun2age(family.get_mother_handle))
                 # and the birth-dates of all the siblings
                 for sib in family.get_child_ref_list():
-                    sibling = self._db.get_person_from_handle(sib.ref)
+                    sibling = self.database.get_person_from_handle(sib.ref)
                     if sibling:
                         children_births.append(self._peopledates.get(sibling.get_gramps_id()))
 
@@ -486,7 +485,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         date = self._peopledates.get(person.get_gramps_id(), None)
         if date is not None:
             return date
-        date = get_timeperiod(self._db, person)
+        date = get_timeperiod(self.database, person)
         if date is not None:
             try:
                 return date.get_date_object().get_year()
@@ -517,7 +516,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             # people of interest.
 
             if handle not in self._people:
-                person = self._db.get_person_from_handle(handle)
+                person = self.database.get_person_from_handle(handle)
 
                 # if this is a private record, and we're not
                 # including private records, then go back to the
@@ -533,7 +532,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                 # there is a family, then remember it for when it comes time
                 # to link spouses together
                 for family_handle in person.get_family_handle_list():
-                    family = self._db.get_family_from_handle(family_handle)
+                    family = self.database.get_family_from_handle(family_handle)
                     spouse_handle = ReportUtils.find_spouse(person, family)
                     if spouse_handle:
                         if (spouse_handle in self._people or
@@ -553,15 +552,15 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
                 # queue the parents of the person we're processing
                 for family_handle in person.get_parent_family_handle_list():
-                    family = self._db.get_family_from_handle(family_handle)
+                    family = self.database.get_family_from_handle(family_handle)
 
                     if not family.private or self._incprivate:
                         try:
-                            father = self._db.get_person_from_handle(
+                            father = self.database.get_person_from_handle(
                                 family.get_father_handle())
                         except AttributeError: father = None
                         try:
-                            mother = self._db.get_person_from_handle(
+                            mother = self.database.get_person_from_handle(
                                 family.get_mother_handle())
                         except AttributeError: mother = None
                         if father:
@@ -576,7 +575,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                                 self._families.add(family_handle)
 
                         for sib in family.get_child_ref_list():
-                            sibling = self._db.get_person_from_handle(sib.ref)
+                            sibling = self.database.get_person_from_handle(sib.ref)
                             if sibling and (not sibling.private or self._incprivate):
                                 ancestorsNotYetProcessed.add(sib.ref)
                                 self._families.add(family_handle)
@@ -587,7 +586,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
         while len(unprocessed_parents) > 0:
             handle = unprocessed_parents.pop()
-            person = self._db.get_person_from_handle(handle)
+            person = self.database.get_person_from_handle(handle)
 
             # There are a few things we're going to need,
             # so look it all up right now; such as:
@@ -614,7 +613,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
             # first we get the person's father and mother
             for family_handle in person.get_parent_family_handle_list():
-                family = self._db.get_family_from_handle(family_handle)
+                family = self.database.get_family_from_handle(family_handle)
                 handle = family.get_father_handle()
                 if handle in self._people:
                     father_handle = handle
@@ -624,11 +623,11 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
             # now see how many spouses this person has
             for family_handle in person.get_family_handle_list():
-                family = self._db.get_family_from_handle(family_handle)
+                family = self.database.get_family_from_handle(family_handle)
                 handle = ReportUtils.find_spouse(person, family)
                 if handle in self._people:
                     spouse_count += 1
-                    spouse = self._db.get_person_from_handle(handle)
+                    spouse = self.database.get_person_from_handle(handle)
                     spouse_handle = handle
                     spouse_surname = spouse.get_primary_name().get_surname()
                     spouse_surname = spouse_surname.encode(
@@ -639,7 +638,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                     if not spouse_father_handle and not spouse_mother_handle:
                         for family_handle in \
                           spouse.get_parent_family_handle_list():
-                            family = self._db.get_family_from_handle(
+                            family = self.database.get_family_from_handle(
                                                               family_handle)
                             handle = family.get_father_handle()
                             if handle in self._people:
@@ -650,7 +649,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
             # get the number of children that we think might be interesting
             for family_handle in person.get_family_handle_list():
-                family = self._db.get_family_from_handle(family_handle)
+                family = self.database.get_family_from_handle(family_handle)
                 if family.private and not self._incprivate:
                     for child_ref in family.get_child_ref_list():
                         if child_ref.ref in self._people:
@@ -693,7 +692,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
             # of interest, then we automatically keep this person
             bKeepThisPerson = False
             for personOfInterestHandle in self._interest_set:
-                personOfInterest = self._db.get_person_from_handle(personOfInterestHandle)
+                personOfInterest = self.database.get_person_from_handle(personOfInterestHandle)
                 surnameOfInterest = personOfInterest.get_primary_name().get_surname().encode('iso-8859-1','xmlcharrefreplace')
                 if surnameOfInterest == surname or surnameOfInterest == spouse_surname:
                     bKeepThisPerson = True
@@ -745,7 +744,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
             if handle not in childrenToInclude:
 
-                person = self._db.get_person_from_handle(handle)
+                person = self.database.get_person_from_handle(handle)
 
                 # if this is a private record, and we're not
                 # including private records, then go back to the
@@ -770,12 +769,12 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
 
                 # iterate through this person's families
                 for family_handle in person.get_family_handle_list():
-                    family = self._db.get_family_from_handle(family_handle)
+                    family = self.database.get_family_from_handle(family_handle)
                     if (family.private and self._incprivate) or not family.private:
 
                         # queue up any children from this person's family
                         for childRef in family.get_child_ref_list():
-                            child = self._db.get_person_from_handle(childRef.ref)
+                            child = self.database.get_person_from_handle(childRef.ref)
                             if (child.private and self._incprivate) or not child.private:
                                 childrenNotYetProcessed.add(child.get_handle())
                                 self._families.add(family_handle)
@@ -783,7 +782,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                         # include the spouse from this person's family
                         spouse_handle = ReportUtils.find_spouse(person, family)
                         if spouse_handle:
-                            spouse = self._db.get_person_from_handle(spouse_handle)
+                            spouse = self.database.get_person_from_handle(spouse_handle)
                             if (spouse.private and self._incprivate) or not spouse.private:
                                 childrenToInclude.add(spouse_handle)
                                 self._families.add(family_handle)
@@ -794,7 +793,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
     def getPeople(self):
         # loop through all the people we need to output
         def handle2json(handle):
-            person = self._db.get_person_from_handle(handle)
+            person = self.database.get_person_from_handle(handle)
             name = self.format_name(person)
             return  {
                 "id": person.get_gramps_id(),
@@ -806,7 +805,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
     def as_gramps_id(self, fun):
         x = fun()
         if not x: return
-        x = self._db.get_person_from_handle(x)
+        x = self.database.get_person_from_handle(x)
         if x:
             try:
                 y = x.get_gramps_id()
@@ -825,7 +824,7 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
                 result.append({"source": father, "target": mother, "directed": False})
             for childRef in family.get_child_ref_list():
                 if childRef.ref in self._people:
-                    child = self._db.get_person_from_handle(childRef.ref)
+                    child = self.database.get_person_from_handle(childRef.ref)
                     if child:
                         child = child.get_gramps_id()
                     if child and father:
@@ -838,6 +837,6 @@ class TAMexportReport(gvfamilylines.FamilyLinesReport):
         result = []
         for family_handle in self._families:
             # get the parents for this family
-            family = self._db.get_family_from_handle(family_handle)
+            family = self.database.get_family_from_handle(family_handle)
             result += family2json(family)
         return result

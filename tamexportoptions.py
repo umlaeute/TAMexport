@@ -94,14 +94,6 @@ class TAMexportOptions(MenuReportOptions):
         add_option('followchild', Option(_('Follow children to determine '
                                     '"family lines"'), True))
 
-# what does *this* do???
-        remove_extra_people = BooleanOption(_('Try to remove extra '
-                                              'people and families'), True)
-        remove_extra_people.set_help(_('People and families not directly '
-                                       'related to people of interest will '
-                                       'be removed when determining '
-                                       '"family lines".'))
-        add_option('removeextra', remove_extra_people)
 
 
 
@@ -163,6 +155,14 @@ class TAMexportOptions(MenuReportOptions):
         includeall_people = BooleanOption(_('Include all people'), False)
         includeall_people.set_help(_('Mark all people as interesting.'))
         add_option('allpeople', includeall_people)
+
+        remove_extra_people = BooleanOption(_('Try to remove extra '
+                                              'people and families'), True)
+        remove_extra_people.set_help(_('People and families not directly '
+                                       'related to people of interest will '
+                                       'be removed when determining '
+                                       '"family lines".'))
+        add_option('removeextra', remove_extra_people)
 
         person_list = PersonListOption(_('Interesting people'))
         person_list.set_help(_('People whose families to include '

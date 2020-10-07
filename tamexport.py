@@ -99,12 +99,6 @@ def _getDefaultName(person):
         nick = prim.get_nick_name()
         call = prim.get_call_name()
         suffix = prim.get_suffix()
-        if call:
-            given = re.sub(r"\b%s\b" % (call,), "<b>%s</b>" % (call,), given, 1)
-        elif given:
-            given = "<b>%s</b>" % given
-        if surname:
-            surname = "<b>%s</b>" % surname
 
         birth = None
         if prim.get_type() != NameType.BIRTH:

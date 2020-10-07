@@ -235,7 +235,6 @@ class TAMexportReport(Report):
         options     - instance of the TAMexportOptions class for this report
         user        - a gen.user.User() instance
         """
-        print("TAMexport(%s,%s,%s)" % (database, options, user))
         Report.__init__(self, database, options, user)
 
         # initialize several convenient variables
@@ -1073,8 +1072,6 @@ class TAMexport:
         name="TAM"
         trans_name="TAM Exporter Configuration"
         dialog = dialog_class(dbstate, uistate, options_class, name, trans_name)
-        print(dialog)
-        print(dialog.window)
         while True:
             print("==================")
             if self.doit(dialog, uistate):

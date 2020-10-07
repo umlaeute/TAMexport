@@ -1056,7 +1056,7 @@ class TAMexport:
     def __init__(self, dbstate=None, uistate=None, bla=None):
         dialog_class=JSONReportDialog
         options_class=TAMexportOptions
-        name="TAM Exporter"
+        name="TAM"
         trans_name="TAM Exporter Configuration"
         dialog = dialog_class(dbstate, uistate, options_class, name, trans_name)
         print(dialog)

@@ -66,8 +66,9 @@ from gramps.gen.utils.file import media_path_full
 from gramps.gen.utils.thumbnails import get_thumbnail_path
 from gramps.gen.plug.report import utils as ReportUtils
 from gramps.gen.plug.report import Report
-from gramps.gen.utils.db import get_timeperiod
+from gramps.gen.utils.db import get_timeperiod, get_birth_or_fallback, get_death_or_fallback
 from gramps.gen.utils.location import get_main_location
+from gramps.gen.datehandler import get_date, get_date_formats
 
 #------------------------------------------------------------------------
 #
@@ -258,6 +259,7 @@ class TAMexportReport(Report):
         self._maxchildren = get_value('maxchildren')
 
         # TODO: is there a standard-option for this?
+        self._date_format = get_value('date_format')
         self._incdates = get_value('incdates')
         # TODO: use the standard-option 'living_people' for this
         self._livinganonymous = get_value('livinganonymous')
@@ -387,7 +389,6 @@ class TAMexportReport(Report):
                 missing += 1
         return missing
 
-
     def estimate_person_times(self):
         self._peopledates = {}
         # fill in known dates for a person
@@ -496,6 +497,16 @@ class TAMexportReport(Report):
             except:
                 return date
         return  None
+
+    def get_person_birthdeath(self, person, format=None):
+        def _get_date(date):
+            if date:
+                return get_date(date)
+
+        birth = _get_date(get_birth_or_fallback(self.database, person, format))
+        death = _get_date(get_death_or_fallback(self.database, person, format))
+        result = (birth, death)
+        return result
 
 
     def findParents(self):
@@ -789,9 +800,22 @@ class TAMexportReport(Report):
         def handle2json(handle):
             person = self.database.get_person_from_handle(handle)
             name = self.format_name(person)
+            if self._incdates:
+                birth,death = self.get_person_birthdeath(person, self._date_format)
+            else:
+                birth,death = (None,None)
+            birthdeath = ""
+            if birth:
+                birthdeath = "%s-" % birth
+            if death:
+                if not birthdeath:
+                    birthdeath = "-"
+                birthdeath = "%s%s" % (birthdeath, death)
+            if birthdeath:
+                birthdeath = "\n(%s)" % birthdeath
             return  {
                 "id": person.get_gramps_id(),
-                "name": name,
+                "name": "%s%s" % (name, birthdeath),
                 "value": self.get_estimated_persontime(person) or 0,
             }
         return [handle2json(_) for _ in self._people ]

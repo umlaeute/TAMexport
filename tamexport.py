@@ -1019,7 +1019,7 @@ class JSONDocument:
     def get_rtl_doc(self): pass
     def get_style_sheet(self): pass
     def set_style_sheet(self): pass
-    
+
 
 from gramps.gui.plug.report import TextReportDialog
 class JSONReportDialog(TextReportDialog):
@@ -1059,7 +1059,7 @@ class JSONReportDialog(TextReportDialog):
         # Create the output document.
         #self.make_document()
         self.options.set_document(JSONDocument())
-        
+
         #self.parse_doc_options()
 
         # Save options

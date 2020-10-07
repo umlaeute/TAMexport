@@ -965,6 +965,7 @@ class TAMexportOptions(MenuReportOptions):
         includeall_people = BooleanOption(_('Include all people'), False)
         includeall_people.set_help(_('Mark all people as interesting.'))
         add_option('allpeople', includeall_people)
+        includeall_people.connect('value-changed', self.includeallpeople_changed)
 
         remove_extra_people = BooleanOption(_('Try to remove extra '
                                               'people and families'), True)
@@ -997,6 +998,13 @@ class TAMexportOptions(MenuReportOptions):
         if not date_option:
             return
         date_option.set_available(self.include_dates.get_value())
+
+    def includeallpeople_changed(self):
+        allpeople = self.menu.get_option_by_name('allpeople')
+        if not allpeople: return
+        removeextra = self.menu.get_option_by_name('removeextra')
+        if not removeextra: return
+        removeextra.set_available(not allpeople.get_value())
 
 class JSONDocument:
     def __init__(self):

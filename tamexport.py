@@ -929,26 +929,26 @@ class TAMexportOptions(MenuReportOptions):
         self.limit_parents = BooleanOption(_('Limit the number of ancestors'),
                                            False)
         self.limit_parents.set_help(_('Whether to '
-                                      'limit the number of ancestors.'))
+                                      'limit the number of ancestor generations.'))
         add_option('limitparents', self.limit_parents)
         self.limit_parents.connect('value-changed', self.limit_changed)
 
-        self.max_parents = NumberOption('', 50, 10, 9999)
+        self.max_parents = NumberOption('', 50, 0, 9999)
         self.max_parents.set_help(_('The maximum number '
-                                    'of ancestors to include.'))
+                                    'of ancestor generations to include.'))
         add_option('maxparents', self.max_parents)
 
         self.limit_children = BooleanOption(_('Limit the number '
                                               'of descendants'),
                                             False)
         self.limit_children.set_help(_('Whether to '
-                                       'limit the number of descendants.'))
+                                       'limit the number of descendant generations.'))
         add_option('limitchildren', self.limit_children)
         self.limit_children.connect('value-changed', self.limit_changed)
 
-        self.max_children = NumberOption('', 50, 10, 9999)
+        self.max_children = NumberOption('', 50, 0, 9999)
         self.max_children.set_help(_('The maximum number '
-                                     'of descendants to include.'))
+                                     'of descendant generations to include.'))
         add_option('maxchildren', self.max_children)
 
         # --------------------------------

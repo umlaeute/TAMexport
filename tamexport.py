@@ -369,7 +369,7 @@ class TAMexportReport(Report):
             "links": self.getFamilies(),
         }
         if doc:
-            json.dump(data, doc)
+            json.dump(data, doc, indent=4)
 
 
     def _estimate_person_times(self, estimator=None):

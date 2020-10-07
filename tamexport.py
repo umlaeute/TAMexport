@@ -905,6 +905,8 @@ class TAMexportOptions(MenuReportOptions):
                                     '"family lines"'), True))
 
         stdoptions.add_name_format_option(menu, category_name)
+
+        # no use for places so far...
         #stdoptions.add_place_format_option(menu, category_name)
 
         stdoptions.add_private_data_option(menu, category_name, default=False)

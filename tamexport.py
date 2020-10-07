@@ -705,16 +705,6 @@ class TAMexportReport(Report):
             if bKeepThisPerson:
                 continue
 
-            # if we have a special colour to use for this person,
-            # then we automatically keep this person
-            if surname in self._surnamecolors:
-                continue
-
-            # if we have a special colour to use for the spouse,
-            # then we automatically keep this person
-            if spouse_surname in self._surnamecolors:
-                continue
-
             # took us a while, but if we get here, then we can remove this person
             self._deleted_people += 1
             self._people.remove(person.get_handle())

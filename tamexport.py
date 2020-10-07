@@ -883,7 +883,7 @@ class TAMexportOptions(MenuReportOptions):
                                     '"family lines"'), True))
 
         stdoptions.add_name_format_option(menu, category_name)
-        stdoptions.add_place_format_option(menu, category_name)
+        #stdoptions.add_place_format_option(menu, category_name)
         stdoptions.add_private_data_option(menu, category_name, default=False)
         stdoptions.add_living_people_option(menu, category_name)
         locale_opt = stdoptions.add_localization_option(menu, category_name)

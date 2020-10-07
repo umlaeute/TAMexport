@@ -853,9 +853,8 @@ class TAMexportReport(Report):
 from gramps.gen.plug.report import MenuReportOptions
 from gramps.gen.plug.report import stdoptions
 from gramps.gen.plug.menu import Option
-from gramps.gen.plug.menu import (NumberOption, ColorOption, BooleanOption,
-                                  EnumeratedListOption, PersonListOption,
-                                  SurnameColorOption)
+from gramps.gen.plug.menu import (NumberOption, BooleanOption,
+                                  EnumeratedListOption, PersonListOption)
 
 # TODO: override gramps.gui.plug.report.ReportDialog() to fix the file-path
 class TAMexportOptions(MenuReportOptions):

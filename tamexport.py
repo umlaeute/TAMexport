@@ -906,8 +906,13 @@ class TAMexportOptions(MenuReportOptions):
 
         stdoptions.add_name_format_option(menu, category_name)
         #stdoptions.add_place_format_option(menu, category_name)
+
         stdoptions.add_private_data_option(menu, category_name, default=False)
+
         stdoptions.add_living_people_option(menu, category_name)
+        # disable 'living_people' until we actually repect its value
+        self.menu.get_option_by_name('living_people').set_available(False)
+
         locale_opt = stdoptions.add_localization_option(menu, category_name)
         stdoptions.add_date_format_option(menu, category_name, locale_opt)
 

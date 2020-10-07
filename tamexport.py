@@ -889,6 +889,11 @@ class TAMexportOptions(MenuReportOptions):
         locale_opt = stdoptions.add_localization_option(menu, category_name)
         stdoptions.add_date_format_option(menu, category_name, locale_opt)
 
+        self.include_dates = BooleanOption(_('Include dates'), True)
+        self.include_dates.set_help(_('Whether to include dates for people.'))
+        add_option('incdates', self.include_dates)
+        self.include_dates.connect('value-changed', self.includedates_changed)
+
         # --------------------------------
         add_option = partial(menu.add_option, _('Edge people'))
         # --------------------------------
@@ -957,10 +962,6 @@ class TAMexportOptions(MenuReportOptions):
         add_option = partial(menu.add_option, _('Include'))
         # --------------------
 
-        self.include_dates = BooleanOption(_('Include dates'), True)
-        self.include_dates.set_help(_('Whether to include dates for people.'))
-        add_option('incdates', self.include_dates)
-
         self.limit_changed()
 
     def limit_changed(self):
@@ -969,6 +970,12 @@ class TAMexportOptions(MenuReportOptions):
         """
         self.max_parents.set_available(self.limit_parents.get_value())
         self.max_children.set_available(self.limit_children.get_value())
+
+    def includedates_changed(self):
+        date_option = self.menu.get_option_by_name('date_format')
+        if not date_option:
+            return
+        date_option.set_available(self.include_dates.get_value())
 
 class JSONDocument:
     def __init__(self):

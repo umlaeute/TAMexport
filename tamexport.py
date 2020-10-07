@@ -43,6 +43,8 @@ export a family-tree as JSON, usable with topographic attribute map (https://git
 from __future__ import unicode_literals
 from functools import partial
 
+import os.path
+
 #------------------------------------------------------------------------
 #
 # Set up logging
@@ -988,8 +990,8 @@ class JSONDocument:
     def __init__(self):
         self.file = None
     def open(self, filename):
-        filename="/tmp/test.json"
-        log.warning("JMZ: hardcoded filename '%s'" % (filename,))
+        if os.path.isdir(filename):
+            filename=os.path.join(filename, "test.json")
         self.file = open(filename, "w")
     def close(self):
         if self.file:
@@ -1008,9 +1010,29 @@ class JSONDocument:
 
 from gramps.gui.plug.report import TextReportDialog
 class JSONReportDialog(TextReportDialog):
-    def setup_format_frame(self):  pass
+    ext = "json"
     def setup_report_options_frame(self): pass
-    def doc_type_changed(self, obj, preserve_tab=True): pass
+
+    def setup_format_frame(self):
+        raw_name = self.raw_name
+        spath = self.get_default_directory()
+        if self.options.get_output():
+            base = os.path.basename(self.options.get_output())
+        else:
+            if self.dbname is None:
+                default_name = raw_name
+            else:
+                default_name = self.dbname + "_" + raw_name
+            base = "%s.%s" % (default_name, self.ext)
+        spath = os.path.normpath(os.path.join(spath, base))
+        self.target_fileentry.set_filename(spath)
+
+    def doc_type_changed(self, obj, preserve_tab=True):
+        fname = self.target_fileentry.get_full_path(0)
+        (spath, ext) = os.path.splitext(fname)
+        fname = spath + ".%s" % self.ext
+        self.target_fileentry.set_filename(fname)
+
     def on_ok_clicked(self, obj):
         # Is there a filename?  This should also test file permissions, etc.
         if not self.parse_target_frame():

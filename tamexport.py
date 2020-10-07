@@ -261,7 +261,7 @@ class TAMexportReport(Report):
         self._date_format = get_value('date_format')
         self._incdates = get_value('incdates')
         # TODO: use the standard-option 'living_people' for this
-        self._livinganonymous = get_value('livinganonymous')
+        #self._livinganonymous = get_value('livinganonymous')
 
         self._incprivate = get_value('incl_private')
 
@@ -973,12 +973,6 @@ class TAMexportOptions(MenuReportOptions):
         person_list.set_help(_('People whose families to include '
                                'apart from the "Main Person".'))
         add_option('interestlist', person_list)
-
-        # sometimes we don't want to list living people
-        anonymise_living_people = BooleanOption(_('Anonymize living people'), True)
-        anonymise_living_people.set_help(_('Do not display names, dates and images of people '
-                                       'that are still alive.'))
-        add_option('livinganonymous', anonymise_living_people)
 
         # --------------------
         add_option = partial(menu.add_option, _('Include'))

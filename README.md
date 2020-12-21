@@ -3,7 +3,7 @@ TAM exporter for gramps
 
 This is a plugin for the [Genealogical Research Software - GRAMPS](https://gramps-project.org/)
 to export a family tree (or parts thereof) in a format that can be used as a
-[Topographic Attribute Map](https://github.com/rpreiner/tam/), for nice visualisation for the tree.
+[Topographic Attribute Map](https://github.com/rpreiner/tam/), for a nice visualisation of your family tree.
 
 
 # Installation
@@ -19,8 +19,8 @@ to export a family tree (or parts thereof) in a format that can be used as a
 # Usage
 
 ## exporting data from gramps
-Once you opened a family tree, navigate to
-- <kbd>Report<kbd> -> <kbd>Code Generators</kbd> -> <kbd>TAM exporter...</kbd>
+Once you have opened a family tree, navigate to
+- <kbd>Report</kbd> -> <kbd>Code Generators</kbd> -> <kbd>TAM exporter...</kbd>
 - in the dialog window, you can control a bit which parts of your family tree should be included in the export
   - if you want *all* people of your database included,
     make sure to **check** the *Include all people* checkbox in the <kbd>Interesting People</kbd> section.
@@ -32,8 +32,8 @@ Once you opened a family tree, navigate to
     When exporting your database, the plugin will start with the *Interesting people* and include all of their
     parents, children, siblings and spouses. Then it will proceed to include the parents, children, siblings
     and spouses of the relatives of the "interesting people" and so on.
-    Whenever an *Edge person* is encountered, this database traversal stop (so edge people are included, but
-    their relatives not - unless these relatives are reachable via some other people)
+    Whenever an *Edge person* is encountered, this database traversal stops (so edge people are included, but
+    their relatives not - unless these relatives are reachable via some other person)
 - once you are happy, select a file to export the data to (it should have the `.json` extension) and click on <kbd>OK</kbd>.
 
 ## importing data to TAM

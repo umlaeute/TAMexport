@@ -241,7 +241,7 @@ class TAMexportReport(Report):
         self._people = set() # handle of people we need in the report
         self._families = set() # handle of families we need in the report
         self._followparents = True
-        self._followchild = True
+        self._followchild = False
         self._deleted_people = 0
         self._deleted_families = 0
         self._options = options
